@@ -1,0 +1,17 @@
+make upload
+tar -cvf ~/sim-steer.tar ~/sim-steer/
+node UDP-listen.js /dev/ttyUSB0
+
+curl --upload-file ~/sim-steer.tar https://transfer.sh/sim-steer.tar
+
+
+/etc/default/keyboard 
+XKBLAYOUT="us" 
+
+get serial port accessible: sudo raspi-config > advanced > serial port > no
+OR
+sudo sysctl -p
+sudo systemctl disable serial-getty@ttyAMA0.service
+
+sudo apt-get install minicom
+minicom -b 115200 -o -D /dev/ttyAMA0
