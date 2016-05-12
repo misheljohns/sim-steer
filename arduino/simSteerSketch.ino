@@ -8,7 +8,9 @@
  * implementing Option1 for now
  */
 
-
+//TODO:
+// * capacitive sensing, message to Pi
+//
 
 
 //#include <CapacitiveSensor.h>
@@ -38,7 +40,8 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEOPIXPIN, NEO_GRB + NEO
 //CapacitiveSensor   steerTouch = CapacitiveSensor(CAPOUTPIN,CAPSENSPIN);        // 10M resistor between pins 13 & 2, pin 2 is sensor pin, add a wire and or foil if desired
 
 char inChar;
-String inString = ""; //Serial buffer
+char inData[10]; //Serial buffer
+char inCount = 0;
 float steerVal = 0.0;
 int LEDVal = 0;
 uint32_t colorPattern[NUMPIXELS];
@@ -48,7 +51,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting arduino..");
 
-/*
   pixels.begin(); // This initializes the NeoPixel library.
 
 
@@ -82,11 +84,11 @@ void setup() {
   for(int i = 0;i < NUMPIXELS; i++) {
     colorPattern[i] = pixels.getPixelColor(i);
   }
-*/
+
 }
 
 void loop() {
-/*
+
   //long touchVal =  steerTouch.capacitiveSensorRaw(CAPSAMPLES);//gives absolute capacitance
   //long touchVal =  steerTouch.capacitiveSensor(CAPSAMPLES);//gives added capacitance from baseline
 	//baseline recalibrated at interval set by set_CS_AutocaL_Millis() default 200000 (20s)
@@ -94,37 +96,40 @@ void loop() {
 	//reset_CS_AutoCal() force an immediate calibration
 	//set_CS_Timeout_Millis(unsigned long timeout_millis)  how long the method will take to timeout, if the receive (sense) pin fails to toggle in the same direction as the send pin
 
-  int tmp = round(steerVal/(2*3.14)) % NUMPIXELS;
-  tmp = tmp < 0? tmp + NUMPIXELS : tmp;
+  int tmp = (round(steerVal*NUMPIXELS/(2*3.14)) + ZEROPIXEL) % NUMPIXELS;
+  tmp = (tmp < 0) ? tmp + NUMPIXELS : tmp;
   if(tmp != LEDVal) { //we need to update the LEDs only if the input has changed, otherwise we can jump to the loop
     LEDVal = tmp;
     int ledno=0;
-    for(int i=ZEROPIXEL;i<NUMPIXELS;i++,ledno++){
+    for(int i=LEDVal;i<NUMPIXELS;i++,ledno++){
       pixels.setPixelColor(i, colorPattern[ledno]); // Moderately bright green color.
     }
-    for(int i=0;i<ZEROPIXEL;i++,ledno++){
+    for(int i=0;i<LEDVal;i++,ledno++){
       pixels.setPixelColor(i, colorPattern[ledno]); // Moderately bright green color.
     }
     pixels.show(); // This sends the updated pixel color to the hardware.
   }
   
-  
-*/
 
   //can't keep writing to pixels that fast? - why do we need a delay?
-  //delay(DELAYVAL); // Delay for a period of time (in milliseconds).
+  delay(DELAYVAL); // Delay for a period of time (in milliseconds).
 
   while(Serial.available()) {
     // read the character we recieve
     inChar = (char)Serial.read();
     if(inChar != '\n') {
-        inString += inChar;
+        inData[inCount] = inChar; //will cause problems if input string is too long (>10)
+        inCount += 1;
     }
     else { //one number input complete
-        Serial.print(inString);
-        Serial.print('\n');
+        //Serial.print(inString);
+        //Serial.print('\n');
         //steerVal = inString.toFloat();
-        inString = "";
+	steerVal = atof(inData);
+        //Serial.print(steerVal);
+	//Serial.print(LEDVal);
+        memset(inData, 0, sizeof(inData)); //filling inData with 0
+        inCount = 0; //reset count
     }
   }
 }
