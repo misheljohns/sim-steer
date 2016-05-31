@@ -15,3 +15,11 @@ sudo systemctl disable serial-getty@ttyAMA0.service
 
 sudo apt-get install minicom
 minicom -b 115200 -o -D /dev/ttyAMA0
+
+
+
+sudo nano /etc/rc.local
+
+add:
+# Start sim-steer node script
+node /home/pi/sim-steer/node/UDP-listen.js &

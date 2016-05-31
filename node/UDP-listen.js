@@ -13,7 +13,7 @@ var gpio = require("pi-gpio");
 
 
 // start the serial port connection and read on newlines
-var serial = new serialport.SerialPort(process.argv[2], {
+var serial = new serialport.SerialPort('/dev/ttyAMA0', { //process.argv[2], {
     parser: serialport.parsers.readline('\n'),
     baudrate: 115200
 });
@@ -22,7 +22,7 @@ var serial = new serialport.SerialPort(process.argv[2], {
 // read the serial data coming from arduino - you must use 'data' as the first argument
 // and send it off to the client using a socket message
 serial.on('data', function(data) {
-    console.log('serial in data - \"', data, "\"");
+    console.log('serial in data - \"' + data + "\"");
 /*
 	if(data == 't') {
 		//messageToSim = new Buffer('touched');
