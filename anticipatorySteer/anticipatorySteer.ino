@@ -13,7 +13,7 @@
 //
 
 
-//#include <CapacitiveSensor.h>
+#include <CapacitiveSensor.h>
 #include <math.h>
 
 #include <Adafruit_NeoPixel.h>
@@ -22,13 +22,13 @@
 #endif
 
 #define NEOPIXPIN      A0
-#define CAPSENSPIN     2
-#define CAPOUTPIN      13
-#define CAPSAMPLES      30
+#define CAPSENSPIN     8
+#define CAPOUTPIN      7
+#define CAPSAMPLES     5
 
 
-#define NUMPIXELS      178 // How many NeoPixels make the full 360 degrees (2*PI)?
-#define ZEROPIXEL      0 //pixel at 0 dgrees 12 o'clock
+#define NUMPIXELS      179 // How many NeoPixels make the full 360 degrees (2*PI)?
+#define ZEROPIXEL      65 //pixel at 0 degrees 12 o'clock
 #define DELAYVAL       1 //delay in the loop
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEOPIXPIN, NEO_GRB + NEO_KHZ800);
@@ -37,7 +37,7 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEOPIXPIN, NEO_GRB + NEO
  * Resistor effects sensitivity, experiment with values, 50K - 50M. Larger resistor values yield larger sensor values.
  * Receive pin is the sensor pin - try different amounts of foil/metal on this pin
  */
-//CapacitiveSensor   steerTouch = CapacitiveSensor(CAPOUTPIN,CAPSENSPIN);        // 10M resistor between pins 13 & 2, pin 2 is sensor pin, add a wire and or foil if desired
+//CapacitiveSensor   steerTouch = CapacitiveSensor(CAPOUTPIN,CAPSENSPIN);        // 2M resistor between pins 8 & 7, pin 8 is sensor pin, add a wire and or foil if desired
 
 char inChar;
 char inData[10]; //Serial buffer
@@ -49,7 +49,7 @@ uint32_t colorPattern[NUMPIXELS];
 
 void setup() {
   Serial.begin(115200);
-  //Serial.println("Starting arduino.."); //the pi is  always running, so this will interfere
+  Serial.println("Starting arduino.."); //the pi is  always running, so this will interfere
 
   pixels.begin(); // This initializes the NeoPixel library.
 
@@ -140,11 +140,10 @@ void loop() {
         //steerVal = inString.toFloat();
         steerVal = atof(inData);
         //Serial.print(steerVal);
-        //Serial.print(LEDVal);        
+        //Serial.print(touchVal);        
         //Serial.print('\n');
         memset(inData, 0, sizeof(inData)); //filling inData with 0
         inCount = 0; //reset count
     }
   }
 }
-
