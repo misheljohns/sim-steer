@@ -43,10 +43,10 @@ char inChar;
 char inData[10]; //Serial buffer
 char inCount = 0;
 float steerVal = 0.0;
-int LEDVal = 0;
+int LEDVal = NUMPIXELS + 1;//impossible value so it will get updated during the first run
 uint32_t colorPattern[NUMPIXELS];
 
-int offCount = 0;
+int offCount = 0, onCount = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -115,7 +115,8 @@ void loop() {
       pixels.show();
       LEDVal = NUMPIXELS + 1;//setting to an impossible value so that tmp!= LEDVal is triggered when offCount goes to 0 and the LEDs are written to again
   }
-  else if(steerVal < 800.0) {
+  else if((steerVal < 800.0) && (onCount >= 2)) {//sometimes noise gives faulty readings that make the LED flash. Here I make sure I get 2 readings before it turns on
+      pixels.setBrightness(200);//back on
     int tmp = (round(steerVal * NUMPIXELS / (2 * 3.14)) + ZEROPIXEL) % NUMPIXELS;
     tmp = (tmp < 0) ? tmp + NUMPIXELS : tmp;
     if (tmp != LEDVal) { //we need to update the LEDs only if the input has changed, otherwise we can jump to the loop
@@ -127,7 +128,6 @@ void loop() {
       for (int i = 0; i < LEDVal; i++, ledno++) {
         pixels.setPixelColor(i, colorPattern[ledno]); // Pattern
       }
-      pixels.setBrightness(200);//back on
       pixels.show(); // This sends the updated pixel color to the hardware.
     }
   }
@@ -156,12 +156,16 @@ void loop() {
       inCount = 0; //reset count
 
       if(steerVal >= 800.0) {
+        onCount = 0;
         offCount = offCount + 1;
         if(offCount > 10)
           offCount = 10;
       }
       else {
         offCount = 0;
+        onCount = onCount + 1;
+        if(onCount > 10)
+          onCount = 10;
       }
     }
   }

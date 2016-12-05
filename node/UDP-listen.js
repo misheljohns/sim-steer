@@ -5,7 +5,7 @@ var TOUCHPIN = 7;
 
 var dgram = require('dgram');
 var server = dgram.createSocket('udp4');
-//const client = dgram.createSocket('udp4');
+const client = dgram.createSocket('udp4');
 
 var serialport = require('serialport');	// serial library
 
@@ -22,7 +22,31 @@ var serial = new serialport.SerialPort('/dev/ttyAMA0', { //process.argv[2], {
 // read the serial data coming from arduino - you must use 'data' as the first argument
 // and send it off to the client using a socket message
 serial.on('data', function(data) {
-    console.log('serial in data - \"' + data + "\"");
+    //console.log('serial in data - \"' + data + "\"");
+    
+    messageToSim = new Buffer(data);
+    client.send(messageToSim , 0, messageToSim.length,'41234', '192.168.0.1', function(err,bytes) {  });
+    
+    /* error:
+    
+    serial in data - "900.98"
+dgram.js:452
+    throw new Error('Not running'); // error message from dgram_legacy.js
+          ^
+Error: Not running
+    at Socket._healthCheck (dgram.js:452:11)
+    at Socket.send (dgram.js:293:8)
+    at SerialPort.<anonymous> (/home/pi/sim-steer/node/UDP-listen.js:28:12)
+    at SerialPort.emit (events.js:107:17)
+    at /home/pi/sim-steer/node/node_modules/serialport/parsers.js:25:17
+    at Array.forEach (native)
+    at Object.parser (/home/pi/sim-steer/node/node_modules/serialport/parsers.js:24:13)
+    at Object.SerialPort.opts.dataCallback (/home/pi/sim-steer/node/node_modules/serialport/serialport.js:181:12)
+    at SerialPortFactory.SerialPort._emitData (/home/pi/sim-steer/node/node_modules/serialport/serialport.js:396:20)
+    at afterRead (/home/pi/sim-steer/node/node_modules/serialport/serialport.js:372:20)
+
+    
+    */
 /*
 	if(data == 't') {
 		//messageToSim = new Buffer('touched');
